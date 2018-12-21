@@ -42,21 +42,16 @@ internal object KeyboardVisibilityDetector {
       }
     }
 
-    viewHolder.onDetach {
+    val viewHolderListener = viewHolder.onDetach {
       onDetach()
     }
 
     return object : Listener {
       override fun stopListening() {
         onDetach()
-        viewHolder.onDestroy()
+        viewHolderListener.stopListening()
       }
     }
-  }
-
-  interface Listener {
-
-    fun stopListening()
   }
 
   private class Detector internal constructor(

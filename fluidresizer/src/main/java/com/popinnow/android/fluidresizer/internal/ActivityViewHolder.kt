@@ -20,6 +20,7 @@ import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import androidx.annotation.CheckResult
 
 internal data class ActivityViewHolder internal constructor(
   internal val nonResizableLayout: ViewGroup,
@@ -27,9 +28,8 @@ internal data class ActivityViewHolder internal constructor(
   internal val contentView: ViewGroup
 ) {
 
-  private var stateListener: View.OnAttachStateChangeListener? = null
-
-  internal inline fun onDetach(crossinline onDetach: () -> Unit) {
+  @CheckResult
+  internal inline fun onDetach(crossinline onDetach: () -> Unit): Listener {
     val listener = object : View.OnAttachStateChangeListener {
       override fun onViewDetachedFromWindow(v: View?) {
         onDetach()
@@ -38,12 +38,12 @@ internal data class ActivityViewHolder internal constructor(
       override fun onViewAttachedToWindow(v: View?) {}
     }
     nonResizableLayout.addOnAttachStateChangeListener(listener)
-    stateListener = listener
-  }
 
-  internal fun onDestroy() {
-    stateListener?.let { nonResizableLayout.removeOnAttachStateChangeListener(it) }
-    stateListener = null
+    return object : Listener {
+      override fun stopListening() {
+        nonResizableLayout.removeOnAttachStateChangeListener(listener)
+      }
+    }
   }
 
   companion object {

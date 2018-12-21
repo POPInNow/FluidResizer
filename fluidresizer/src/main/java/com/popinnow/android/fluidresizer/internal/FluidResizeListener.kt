@@ -26,7 +26,6 @@ import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.popinnow.android.fluidresizer.KeyboardVisibilityChanged
-import com.popinnow.android.fluidresizer.internal.KeyboardVisibilityDetector.Listener
 
 internal data class FluidResizeListener internal constructor(
   private val activity: Activity,
@@ -41,20 +40,25 @@ internal data class FluidResizeListener internal constructor(
   }
 
   internal inline fun beginListening(crossinline onChange: (event: KeyboardVisibilityChanged) -> Unit) {
-    val viewHolder =
-      ActivityViewHolder.createFrom(activity)
+    val viewHolder = ActivityViewHolder.createFrom(activity)
 
-    val listener =
-      KeyboardVisibilityDetector.listen(viewHolder) {
-        animateHeight(viewHolder, it)
-        onChange(it)
-      }
+    val listener = KeyboardVisibilityDetector.listen(viewHolder) {
+      animateHeight(viewHolder, it)
+      onChange(it)
+    }
 
-    viewHolder.onDetach {
+    val viewHolderListener = viewHolder.onDetach {
       destroyAnimator()
     }
 
-    resizeListener = listener
+    resizeListener = object : Listener {
+
+      override fun stopListening() {
+        listener.stopListening()
+        viewHolderListener.stopListening()
+      }
+
+    }
   }
 
   @Suppress("unused")
