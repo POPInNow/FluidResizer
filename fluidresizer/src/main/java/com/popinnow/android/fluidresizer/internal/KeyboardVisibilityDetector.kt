@@ -17,19 +17,45 @@
 package com.popinnow.android.fluidresizer.internal
 
 import android.view.ViewTreeObserver
+import androidx.annotation.CheckResult
 import com.popinnow.android.fluidresizer.KeyboardVisibilityChanged
 
 internal object KeyboardVisibilityDetector {
 
+  @CheckResult
   internal fun listen(
     viewHolder: ActivityViewHolder,
     listener: (event: KeyboardVisibilityChanged) -> Unit
-  ) {
+  ): Listener {
     val detector = Detector(viewHolder, listener)
-    viewHolder.nonResizableLayout.viewTreeObserver.addOnPreDrawListener(detector)
-    viewHolder.onDetach {
-      viewHolder.nonResizableLayout.viewTreeObserver.removeOnPreDrawListener(detector)
+
+    val outerVto = viewHolder.nonResizableLayout.viewTreeObserver
+    if (outerVto.isAlive) {
+      outerVto.addOnPreDrawListener(detector)
     }
+
+    // Callback to remove the listener either manually or on view detach
+    val onDetach: () -> Unit = {
+      val vto = viewHolder.nonResizableLayout.viewTreeObserver
+      if (vto.isAlive) {
+        vto.removeOnPreDrawListener(detector)
+      }
+    }
+
+    viewHolder.onDetach {
+      onDetach()
+    }
+
+    return object : Listener {
+      override fun stopListening() {
+        onDetach()
+      }
+    }
+  }
+
+  interface Listener {
+
+    fun stopListening()
   }
 
   private class Detector internal constructor(
@@ -57,11 +83,11 @@ internal object KeyboardVisibilityDetector {
         val isKeyboardVisible = contentHeight < previousHeight
 
         listener(
-          KeyboardVisibilityChanged(
-            visible = isKeyboardVisible,
-            contentHeight = contentHeight,
-            contentHeightBeforeResize = previousHeight
-          )
+            KeyboardVisibilityChanged(
+                visible = isKeyboardVisible,
+                contentHeight = contentHeight,
+                contentHeightBeforeResize = previousHeight
+            )
         )
       }
 
