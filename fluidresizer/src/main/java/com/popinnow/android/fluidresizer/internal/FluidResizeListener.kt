@@ -71,7 +71,11 @@ internal data class FluidResizeListener internal constructor(
   }
 
   private fun destroyAnimator() {
-    heightAnimator?.cancel()
+    heightAnimator?.also {
+      it.cancel()
+      it.removeAllUpdateListeners()
+      it.removeAllListeners()
+    }
     heightAnimator = null
   }
 
