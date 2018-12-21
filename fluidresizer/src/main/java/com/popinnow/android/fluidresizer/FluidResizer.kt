@@ -32,7 +32,7 @@ import com.popinnow.android.fluidresizer.internal.KeyboardVisibilityDetector
  */
 object FluidResizer {
 
-  private var heightAnimator: ValueAnimator = ObjectAnimator()
+  private var heightAnimator: ValueAnimator? = null
   private val DEFAULT_ON_CHANGE: (event: KeyboardVisibilityChanged) -> Unit = {}
 
   /**
@@ -61,7 +61,7 @@ object FluidResizer {
       onChange(it)
     }
     viewHolder.onDetach {
-      heightAnimator.cancel()
+      heightAnimator?.cancel()
     }
   }
 
@@ -72,19 +72,20 @@ object FluidResizer {
     val contentView = viewHolder.contentView
     contentView.setHeight(event.contentHeightBeforeResize)
 
-    heightAnimator.cancel()
+    heightAnimator?.cancel()
 
     // Warning: animating height might not be very performant. Try turning on
     // "Profile GPI rendering" in developer options and check if the bars stay
     // under 16ms in your app. Using Transitions API would be more efficient, but
     // for some reason it skips the first animation and I cannot figure out why.
-    heightAnimator = ObjectAnimator.ofInt(event.contentHeightBeforeResize, event.contentHeight)
+    val animator = ObjectAnimator.ofInt(event.contentHeightBeforeResize, event.contentHeight)
         .apply {
           interpolator = FastOutSlowInInterpolator()
           duration = 300
         }
-    heightAnimator.addUpdateListener { contentView.setHeight(it.animatedValue as Int) }
-    heightAnimator.start()
+    animator.addUpdateListener { contentView.setHeight(it.animatedValue as Int) }
+    animator.start()
+    heightAnimator = animator
   }
 
   private fun View.setHeight(height: Int) {
