@@ -49,6 +49,7 @@ internal object KeyboardVisibilityDetector {
     return object : Listener {
       override fun stopListening() {
         onDetach()
+        viewHolder.onDestroy()
       }
     }
   }

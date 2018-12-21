@@ -21,62 +21,64 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion rootProject.ext.maxSdk
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdk
+  compileSdkVersion rootProject.ext.maxSdk
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdk
 
-        // English only, no translations at this time.
-        resConfigs "en"
+    // English only, no translations at this time.
+    resConfigs "en"
 
-        // Ship with Proguard files
-        consumerProguardFiles 'proguard-rules.pro'
+    // Ship with Proguard files
+    consumerProguardFiles 'proguard-rules.pro'
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles 'proguard-rules.pro'
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles 'proguard-rules.pro'
-        }
-    }
+  }
 
-    // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
-    libraryVariants.all {
-        it.generateBuildConfig.enabled = false
-    }
+  // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
+  libraryVariants.all {
+    it.generateBuildConfig.enabled = false
+  }
 }
 
 /**
  * We need to bundle the test classes so that other tests can extend from them
  */
 task resizerDebugTestJar(type: Jar) {
-    classifier = 'test'
-    from "$buildDir/tmp/kotlin-classes/debugUnitTest"
+  classifier = 'test'
+  from "$buildDir/tmp/kotlin-classes/debugUnitTest"
 }
 
 resizerDebugTestJar.dependsOn tasks.withType(AbstractCompile).matching {
-    def name = it.name.toLowerCase()
-    name.contains("debug") && name.contains("unit") && name.contains("test")
+  def name = it.name.toLowerCase()
+  name.contains("debug") && name.contains("unit") && name.contains("test")
 }
 
 task resizerReleaseTestJar(type: Jar) {
-    classifier = 'test'
-    from "$buildDir/tmp/kotlin-classes/releaseUnitTest"
+  classifier = 'test'
+  from "$buildDir/tmp/kotlin-classes/releaseUnitTest"
 }
 
 resizerReleaseTestJar.dependsOn tasks.withType(AbstractCompile).matching {
-    def name = it.name.toLowerCase()
-    name.contains("release") && name.contains("unit") && name.contains("test")
+  def name = it.name.toLowerCase()
+  name.contains("release") && name.contains("unit") && name.contains("test")
 }
 
 artifacts {
-    archives resizerDebugTestJar
-    archives resizerReleaseTestJar
+  archives resizerDebugTestJar
+  archives resizerReleaseTestJar
 }
 
 dependencies {
-    implementation "androidx.interpolator:interpolator:$interpolator"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  implementation "androidx.interpolator:interpolator:$interpolator"
+  implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle"
+  implementation "androidx.fragment:fragment:$fragment"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 apply from: "$rootDir/publishing.gradle"

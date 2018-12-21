@@ -17,87 +17,87 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext {
-        kotlin_version = '1.3.11'
-    }
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        // Android
-        classpath "com.android.tools.build:gradle:3.2.1"
+  ext {
+    kotlin_version = '1.3.11'
+  }
+  repositories {
+    google()
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    // Android
+    classpath "com.android.tools.build:gradle:3.2.1"
 
-        // Kotlin
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.17"
+    // Kotlin
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.17"
 
-        // Maven publishing
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+    // Maven publishing
+    classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
 
-        // Dex count
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.4'
+    // Dex count
+    classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.4'
 
-        // Gradle version checker
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
+    // Gradle version checker
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
 }
 
 ext {
-    // POM info
-    POM_GROUP = "com.popinnow.android.fluidresizer"
-    POM_VERSION = "0.0.1"
+  // POM info
+  POM_GROUP = "com.popinnow.android.fluidresizer"
+  POM_VERSION = "0.0.2-SNAPSHOT"
 
-    minSdk = 14
-    maxSdk = 28
+  minSdk = 14
+  maxSdk = 28
 
-
-    // AndroidX animations
-    interpolator = "1.0.0"
+  interpolator = "1.0.0"
+  lifecycle = "2.0.0"
+  fragment = "1.0.0"
 }
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-    }
+  repositories {
+    google()
+    mavenCentral()
+    jcenter()
+  }
 }
 
 subprojects {
-    apply plugin: 'com.github.dcendents.android-maven'
-    apply plugin: 'com.github.ben-manes.versions'
+  apply plugin: 'com.github.dcendents.android-maven'
+  apply plugin: 'com.github.ben-manes.versions'
 
-    // Lint for unchecked casts and deprecated API usage
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
-        options.deprecation = true
-    }
+  // Lint for unchecked casts and deprecated API usage
+  tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+    options.deprecation = true
+  }
 
-    // gradle-versions-plugin ignore any pre-release versions
-    dependencyUpdates.resolutionStrategy {
-        componentSelection { rules ->
-            rules.all { ComponentSelection selection ->
-                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
-                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-                }
-                if (rejected) {
-                    selection.reject('Release candidate')
-                }
-            }
+  // gradle-versions-plugin ignore any pre-release versions
+  dependencyUpdates.resolutionStrategy {
+    componentSelection { rules ->
+      rules.all { ComponentSelection selection ->
+        boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
+          selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
         }
+        if (rejected) {
+          selection.reject('Release candidate')
+        }
+      }
     }
+  }
 
-    group = POM_GROUP
-    version = POM_VERSION
+  group = POM_GROUP
+  version = POM_VERSION
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+  delete rootProject.buildDir
 }
 

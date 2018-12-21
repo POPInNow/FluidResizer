@@ -27,6 +27,25 @@ internal data class ActivityViewHolder internal constructor(
   internal val contentView: ViewGroup
 ) {
 
+  private var stateListener: View.OnAttachStateChangeListener? = null
+
+  internal inline fun onDetach(crossinline onDetach: () -> Unit) {
+    val listener = object : View.OnAttachStateChangeListener {
+      override fun onViewDetachedFromWindow(v: View?) {
+        onDetach()
+      }
+
+      override fun onViewAttachedToWindow(v: View?) {}
+    }
+    nonResizableLayout.addOnAttachStateChangeListener(listener)
+    stateListener = listener
+  }
+
+  internal fun onDestroy() {
+    stateListener?.let { nonResizableLayout.removeOnAttachStateChangeListener(it) }
+    stateListener = null
+  }
+
   companion object {
 
     /**
@@ -45,20 +64,10 @@ internal data class ActivityViewHolder internal constructor(
       val resizableLayout = actionBarRootLayout.parent as ViewGroup
 
       return ActivityViewHolder(
-        nonResizableLayout = decorView,
-        resizableLayout = resizableLayout,
-        contentView = contentView
+          nonResizableLayout = decorView,
+          resizableLayout = resizableLayout,
+          contentView = contentView
       )
     }
-  }
-
-  internal inline fun onDetach(crossinline onDetach: () -> Unit) {
-    nonResizableLayout.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-      override fun onViewDetachedFromWindow(v: View?) {
-        onDetach()
-      }
-
-      override fun onViewAttachedToWindow(v: View?) {}
-    })
   }
 }

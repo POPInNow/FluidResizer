@@ -16,13 +16,11 @@
 
 package com.popinnow.android.fluidresizer
 
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.app.Activity
-import android.view.View
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import com.popinnow.android.fluidresizer.internal.ActivityViewHolder
-import com.popinnow.android.fluidresizer.internal.KeyboardVisibilityDetector
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import com.popinnow.android.fluidresizer.internal.FluidResizeListener
 
 /**
  * This class attaches to Activity instances and watches them for resize events
@@ -32,7 +30,6 @@ import com.popinnow.android.fluidresizer.internal.KeyboardVisibilityDetector
  */
 object FluidResizer {
 
-  private var heightAnimator: ValueAnimator? = null
   private val DEFAULT_ON_CHANGE: (event: KeyboardVisibilityChanged) -> Unit = {}
 
   /**
@@ -44,53 +41,45 @@ object FluidResizer {
   @JvmStatic
   @JvmOverloads
   fun listen(
-    activity: Activity,
+    activity: FragmentActivity,
     onChange: (event: KeyboardVisibilityChanged) -> Unit = DEFAULT_ON_CHANGE
   ) {
-    beginListening(activity, onChange)
+    listen(activity, activity, onChange)
   }
 
-  private inline fun beginListening(
+  /**
+   * Listen for resize events and react to them with a smooth animation
+   *
+   * @param activity Activity instance
+   * @param lifecycleOwner LifecycleOwner instance
+   * @param onChange Optional callback to handle additional reactions to screen resize events
+   */
+  @JvmStatic
+  @JvmOverloads
+  fun listen(
     activity: Activity,
-    crossinline onChange: (event: KeyboardVisibilityChanged) -> Unit
+    lifecycleOwner: LifecycleOwner,
+    onChange: (event: KeyboardVisibilityChanged) -> Unit = DEFAULT_ON_CHANGE
   ) {
-    val viewHolder = ActivityViewHolder.createFrom(activity)
-
-    KeyboardVisibilityDetector.listen(viewHolder) {
-      animateHeight(viewHolder, it)
-      onChange(it)
-    }
-    viewHolder.onDetach {
-      heightAnimator?.cancel()
-    }
+    listen(activity, lifecycleOwner.lifecycle, onChange)
   }
 
-  private fun animateHeight(
-    viewHolder: ActivityViewHolder,
-    event: KeyboardVisibilityChanged
+  /**
+   * Listen for resize events and react to them with a smooth animation
+   *
+   * @param activity Activity instance
+   * @param lifecycle Lifecycle instance
+   * @param onChange Optional callback to handle additional reactions to screen resize events
+   */
+  @JvmStatic
+  @JvmOverloads
+  fun listen(
+    activity: Activity,
+    lifecycle: Lifecycle,
+    onChange: (event: KeyboardVisibilityChanged) -> Unit = DEFAULT_ON_CHANGE
   ) {
-    val contentView = viewHolder.contentView
-    contentView.setHeight(event.contentHeightBeforeResize)
-
-    heightAnimator?.cancel()
-
-    // Warning: animating height might not be very performant. Try turning on
-    // "Profile GPI rendering" in developer options and check if the bars stay
-    // under 16ms in your app. Using Transitions API would be more efficient, but
-    // for some reason it skips the first animation and I cannot figure out why.
-    val animator = ObjectAnimator.ofInt(event.contentHeightBeforeResize, event.contentHeight)
-        .apply {
-          interpolator = FastOutSlowInInterpolator()
-          duration = 300
-        }
-    animator.addUpdateListener { contentView.setHeight(it.animatedValue as Int) }
-    animator.start()
-    heightAnimator = animator
+    FluidResizeListener(activity, lifecycle)
+        .beginListening(onChange)
   }
 
-  private fun View.setHeight(height: Int) {
-    val params = layoutParams
-    params.height = height
-    layoutParams = params
-  }
 }
