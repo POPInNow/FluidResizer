@@ -38,7 +38,7 @@ buildscript {
     classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
 
     // Dex count
-    classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.4'
+    classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.5'
 
     // Gradle version checker
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
