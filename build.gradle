@@ -18,7 +18,7 @@
 
 buildscript {
   ext {
-    kotlin_version = '1.3.20'
+    kotlin_version = '1.3.21'
   }
   repositories {
     google()
@@ -27,7 +27,7 @@ buildscript {
   }
   dependencies {
     // Android
-    classpath "com.android.tools.build:gradle:3.3.0"
+    classpath "com.android.tools.build:gradle:3.3.1"
 
     // Kotlin
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -38,7 +38,7 @@ buildscript {
     classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
 
     // Dex count
-    classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.5'
+    classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.6'
 
     // Gradle version checker
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
