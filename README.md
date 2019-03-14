@@ -9,7 +9,7 @@ In your `build.gradle`
 
 ```gradle
 dependencies {
-  def latestVersion = "0.0.2"
+  def latestVersion = "0.0.3"
 
   implementation "com.popinnow.android.fluidresizer:fluidresizer:$latestVersion"
 }
