@@ -30,13 +30,24 @@ import com.popinnow.android.fluidresizer.KeyboardVisibilityChanged
 internal data class FluidResizeListener internal constructor(
   private val activity: Activity,
   private val lifecycle: Lifecycle
-) : LifecycleObserver {
+) {
 
   private var heightAnimator: ValueAnimator? = null
   private var resizeListener: Listener? = null
 
   init {
-    lifecycle.addObserver(this)
+    lifecycle.addObserver(object : LifecycleObserver {
+
+      @Suppress("unused")
+      @OnLifecycleEvent(ON_DESTROY)
+      fun onDestroy() {
+        lifecycle.removeObserver(this)
+
+        resizeListener?.stopListening()
+        destroyAnimator()
+      }
+
+    })
   }
 
   internal inline fun beginListening(crossinline onChange: (event: KeyboardVisibilityChanged) -> Unit) {
@@ -59,15 +70,6 @@ internal data class FluidResizeListener internal constructor(
       }
 
     }
-  }
-
-  @Suppress("unused")
-  @OnLifecycleEvent(ON_DESTROY)
-  internal fun stopListening() {
-    lifecycle.removeObserver(this)
-
-    resizeListener?.stopListening()
-    destroyAnimator()
   }
 
   private fun destroyAnimator() {
