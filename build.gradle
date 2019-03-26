@@ -51,7 +51,7 @@ buildscript {
 ext {
   // POM info
   POM_GROUP = "com.popinnow.android.fluidresizer"
-  POM_VERSION = "0.0.3"
+  POM_VERSION = "0.0.4"
 
   minSdk = 14
   maxSdk = 28
