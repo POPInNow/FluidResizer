@@ -27,9 +27,9 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.popinnow.android.fluidresizer.KeyboardVisibilityChanged
 
-internal data class FluidResizeListener internal constructor(
+internal class FluidResizeListener internal constructor(
   private val activity: Activity,
-  private val lifecycle: Lifecycle
+  lifecycle: Lifecycle
 ) {
 
   private var heightAnimator: ValueAnimator? = null
